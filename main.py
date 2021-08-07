@@ -5,8 +5,8 @@ import os
 import webbrowser
 import pyttsx3
 from Keys import OPENWEATHER
-from datetime import date, timedelta, datetime
-import asyncio
+from datetime import datetime
+import json
 
 SEARCH_WORDS = {'who': 'who', 'what': 'what', 'when': 'when', 'where': 'where', 'why': 'why', 'how': 'how'}
 
@@ -16,7 +16,15 @@ microphone = sr.Microphone()
 engine = pyttsx3.init()
 engine.setProperty('volume', 5.0)
 
-WakeWord = 'Jarvis'
+with open('settings.json') as f:
+    settings = json.load(f)
+
+username = settings["username"]
+city = settings["city"]
+startup = settings["startup"]
+botname = settings["botname"]
+
+WakeWord = botname
 
 class Jarvis:
     def __init__(self):
@@ -51,23 +59,21 @@ class Jarvis:
         try:
             print(command)
             if "introduce yourself" in command:
-                s.speak("I am Jarvis. I'm a digital assistant created by Luca D'Ealessandris.")
+                s.speak(f"I am {botname}. I'm a digital assistant created by Luca D'Ealessandris.")
 
             elif "open" in command:
                 s.open_things(command)
 
-
             elif "good morning" in command:
-                today = date.today()
                 now = datetime.now()
-                home = 'New York'
+                home = city
                 owm = pyowm.OWM(OPENWEATHER)
                 mgr = owm.weather_manager()
                 observation = mgr.weather_at_place(home)
                 w = observation.weather
                 temp = w.temperature('celsius')
                 status = w.detailed_status
-                s.speak("Good morning Luca, it is currently " + now.strftime("%I") + now.strftime("%M") + now.strftime("%p"))
+                s.speak(f"Good morning {username}, it is currently " + now.strftime("%I") + now.strftime("%M") + now.strftime("%p"))
                 s.speak("The temperature outside is currently " + str(int(temp['temp'])) + " degrees celsius and " + status)
 
             elif "how are you" in command:
@@ -80,7 +86,7 @@ class Jarvis:
                 s.speak("It is currently " + now.strftime("%I") + now.strftime("%M") + now.strftime("%p"))
 
             elif "weather" in command:
-                home = 'New York'
+                home = city
                 owm = pyowm.OWM(OPENWEATHER)
                 mgr = owm.weather_manager()
                 observation = mgr.weather_at_place(home)
@@ -90,7 +96,7 @@ class Jarvis:
                 s.speak("The temperature outside is currently " + str(int(temp['temp'])) + " degrees celsius and " + status)
 
             elif "temperature" in command:
-                home = 'New York'
+                home = city
                 owm = pyowm.OWM(OPENWEATHER)
                 mgr = owm.weather_manager()
                 observation = mgr.weather_at_place(home)
@@ -99,6 +105,7 @@ class Jarvis:
                 status = w.detailed_status
                 s.speak("The temperature outside is currently " + str(int(temp['temp'])) + " degrees celsius and " + status)
             
+            # keep in end
             elif SEARCH_WORDS.get(command.split(' ')[1]) in command:
                 s.speak("Here's what I found.")
                 webbrowser.open("https://www.google.com/search?q={}".format(command[7:]))
@@ -163,12 +170,46 @@ class Jarvis:
         else:
             webbrowser.open("https://www.google.com/search?q={}".format(command[12:]))
             pass
+            
+    def run():
+      command = s.listen(recognizer, microphone)
+          
+      if command == None:
+        s.run()
+      else:
+        if startup == "True":
+          def setup():
+            settings["startup"] = "False"
+            
+            s.speak("Hi there! I'm your new assistant. What is your name?")
+            response = s.listen(recognizer, microphone)
+            settings["username"] = response
+            
+            s.speak(f"Hi {response}! In what city do you live in?")
+            response = s.listen(recognizer, microphone)
+            settings["city"] = response
+            
+            s.speak("Great! Finally, what would you like to call me?")
+            response = s.listen(recognizer, microphone)
+            settings["botname"] = response
+
+            botname = settings["botname"]
+            username = settings["username"]
+            city = settings["city"]
+
+            s.speak(f"From now on you will call me {botname}, I will call you {username} and you live in {city}, is everything right? Answer with yes or no.")
+            response = s.listen(recognizer, microphone)
+            
+            if response == "Yes":
+              s.speak("Great! I will now restart and you will be able to use me afterwards!")
+              quit()
+            
+            else:
+              s.setup()
+        
+        else:
+          s.analyze(command)
+          s.run()
 
 s = Jarvis()
-
-while True:
-    command = s.listen(recognizer, microphone)
-    if command == None:
-        return       
-    else:
-        s.analyze(command)
+s.run()
