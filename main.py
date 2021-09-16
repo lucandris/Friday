@@ -18,14 +18,13 @@ engine.setProperty('volume', 5.0)
 with open('settings.json') as f:
     settings = json.load(f)
 
-username = settings["username"]
 city = settings["city"]
 startup = settings["startup"]
 botname = settings["botname"]
 
 WakeWord = botname
 
-class Jarvis:
+class Friday:
     def __init__(self):
         self.recognizer = sr.Recognizer()
         self.microphone = sr.Microphone()
@@ -58,10 +57,10 @@ class Jarvis:
         try:
             print(command)
             if "introduce yourself" in command:
-                s.speak(f"I am {botname}. I'm a digital assistant created by Luca D'Ealessandris.")
+                bot.speak(f"I am {botname}. I'm a digital assistant created by DefaultModels.")
 
             elif "open" in command:
-                s.open_things(command)
+                bot.open_things(command)
 
             elif "good morning" in command:
                 now = datetime.now()
@@ -72,17 +71,17 @@ class Jarvis:
                 w = observation.weather
                 temp = w.temperature('celsius')
                 status = w.detailed_status
-                s.speak(f"Good morning {username}, it is currently " + now.strftime("%I") + now.strftime("%M") + now.strftime("%p"))
-                s.speak("The temperature outside is currently " + str(int(temp['temp'])) + " degrees celsius and " + status)
+                bot.speak(f"Good morning, it is currently " + now.strftime("%I") + now.strftime("%M") + now.strftime("%p"))
+                bot.speak("The temperature outside is currently " + str(int(temp['temp'])) + " degrees celsius and " + status)
 
             elif "how are you" in command:
                 current_feelings = ["I'm okay.", "I'm doing well. Thank you.", "I am doing okay."]
                 greeting = random.choice(current_feelings)
-                s.speak(greeting)
+                bot.speak(greeting)
 
             elif "time" in command:
                 now = datetime.now()
-                s.speak("It is currently " + now.strftime("%I") + now.strftime("%M") + now.strftime("%p"))
+                bot.speak("It is currently " + now.strftime("%I") + now.strftime("%M") + now.strftime("%p"))
 
             elif "weather" in command:
                 home = city
@@ -92,7 +91,7 @@ class Jarvis:
                 w = observation.weather
                 temp = w.temperature('celsius')
                 status = w.detailed_status
-                s.speak("The temperature outside is currently " + str(int(temp['temp'])) + " degrees celsius and " + status)
+                bot.speak("The temperature outside is currently " + str(int(temp['temp'])) + " degrees celsius and " + status)
 
             elif "temperature" in command:
                 home = city
@@ -102,18 +101,18 @@ class Jarvis:
                 w = observation.weather
                 temp = w.temperature('celsius')
                 status = w.detailed_status
-                s.speak("The temperature outside is currently " + str(int(temp['temp'])) + " degrees celsius and " + status)
+                bot.speak("The temperature outside is currently " + str(int(temp['temp'])) + " degrees celsius and " + status)
             
             # keep in end
             elif SEARCH_WORDS.get(command.split(' ')[1]) in command:
-                s.speak("Here's what I found.")
+                bot.speak("Here's what I found.")
                 webbrowser.open("https://www.google.com/search?q={}".format(command[7:]))
 
             else:
-                s.speak("I don't know how to do that yet.")
+                bot.speak("I don't know how to do that yet.")
 
         except TypeError:
-            s.speak("I don't know how to do that yet")
+            bot.speak("I don't know how to do that yet")
             print("Warning: You're getting a TypeError somewhere.")
             pass
         except AttributeError:
@@ -122,47 +121,47 @@ class Jarvis:
 
     def open_things(self, command):
         if "youtube" in command:
-            s.speak("Opening YouTube.")
+            bot.speak("Opening YouTube.")
             webbrowser.open("https://www.youtube.com/")
             pass
 
         elif "pronote" in command:
-            s.speak("Opening Pronote.")
+            bot.speak("Opening Pronote.")
             webbrowser.open("https://4040004j.index-education.net/pronote/eleve.html")
             pass
 
         elif "gmail" in command:
-            s.speak("Opening gmail.")
+            bot.speak("Opening gmail.")
             webbrowser.open("https://mail.google.com/mail/u/1/#inbox")
             pass
 
         elif "calendar" in command:
-            s.speak("Opening calendar.")
+            bot.speak("Opening calendar.")
             webbrowser.open("https://calendar.google.com/calendar/u/1/r/day?pli=1")
             pass
 
         elif "discord" in command:
-            s.speak("Opening discord.")
+            bot.speak("Opening discord.")
             webbrowser.open("https://discord.com/channels/@me/")
             pass
 
         elif "classroom" in command:
-            s.speak("Opening classroom.")
+            bot.speak("Opening classroom.")
             webbrowser.open("https://classroom.google.com/u/1/h")
             pass
 
         elif "minecraft" in command:
-            s.speak("Opening minecraft.")
+            bot.speak("Opening minecraft.")
             os.startfile("C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Minecraft Launcher\Minecraft Launcher.lnk")
             pass
 
         elif "steam" in command:
-            s.speak("Opening Steam.")
+            bot.speak("Opening Steam.")
             os.startfile("C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Steam\Steam.lnk")
             pass
 
         elif "google" in command:
-            s.speak("Opening google chrome.")
+            bot.speak("Opening google chrome.")
             os.startfile("C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Google Chrome.lnk")
             pass
 
@@ -171,44 +170,39 @@ class Jarvis:
             pass
             
     def run():
-      command = s.listen(recognizer, microphone)
+      command = bot.listen(recognizer, microphone)
           
       if command == None:
-        s.run()
+        bot.run()
       else:
         if startup == "True":
           def setup():
             settings["startup"] = "False"
             
-            s.speak("Hi there! I'm your new assistant. What is your name?")
-            response = s.listen(recognizer, microphone)
-            settings["username"] = response
-            
-            s.speak(f"Hi {response}! In what city do you live in?")
-            response = s.listen(recognizer, microphone)
-            settings["city"] = response
-            
-            s.speak("Great! Finally, what would you like to call me?")
-            response = s.listen(recognizer, microphone)
+            bot.speak("Hi there! I'm your new assistant. What would you like to call me?")
+            response = bot.listen(recognizer, microphone)
             settings["botname"] = response
 
+            bot.speak(f"Great! In what city do you live in?")
+            response = bot.listen(recognizer, microphone)
+            settings["city"] = response
+
             botname = settings["botname"]
-            username = settings["username"]
             city = settings["city"]
 
-            s.speak(f"From now on you will call me {botname}, I will call you {username} and you live in {city}, is everything right? Answer with yes or no.")
-            response = s.listen(recognizer, microphone)
+            bot.speak(f"From now on you will call me {botname} and you live in {city}, is everything right? Answer with yes or no.")
+            response = bot.listen(recognizer, microphone)
             
             if response == "Yes":
-              s.speak("Great! I will now restart and you will be able to use me afterwards!")
+              bot.speak("Great! I will now restart and you will be able to use me afterwards!")
               quit()
             
             else:
-              s.setup()
+              bot.setup()
         
         else:
-          s.analyze(command)
-          s.run()
+          bot.analyze(command)
+          bot.run()
 
-s = Jarvis()
-s.run()
+bot = Friday()
+bot.run()
