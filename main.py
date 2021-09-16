@@ -4,7 +4,6 @@ import random
 import os
 import webbrowser
 import pyttsx3
-from Keys import OPENWEATHER
 from datetime import datetime
 import json
 
@@ -67,7 +66,7 @@ class Jarvis:
             elif "good morning" in command:
                 now = datetime.now()
                 home = city
-                owm = pyowm.OWM(OPENWEATHER)
+                owm = pyowm.OWM(os.environ['OPENWEATHER'])
                 mgr = owm.weather_manager()
                 observation = mgr.weather_at_place(home)
                 w = observation.weather
@@ -87,7 +86,7 @@ class Jarvis:
 
             elif "weather" in command:
                 home = city
-                owm = pyowm.OWM(OPENWEATHER)
+                owm = pyowm.OWM(os.environ['OPENWEATHER'])
                 mgr = owm.weather_manager()
                 observation = mgr.weather_at_place(home)
                 w = observation.weather
@@ -97,7 +96,7 @@ class Jarvis:
 
             elif "temperature" in command:
                 home = city
-                owm = pyowm.OWM(OPENWEATHER)
+                owm = pyowm.OWM(os.environ['OPENWEATHER'])
                 mgr = owm.weather_manager()
                 observation = mgr.weather_at_place(home)
                 w = observation.weather

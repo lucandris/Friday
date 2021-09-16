@@ -1,1 +1,0 @@
-OPENWEATHER = '284b5b6d2e2c83d312b576d9bcc5faf1'
